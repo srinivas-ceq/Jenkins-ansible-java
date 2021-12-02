@@ -1,4 +1,3 @@
-FROM openjdk:8
-EXPOSE 8080
-ADD target/docker-jenkins-integration-sample.jar docker-jenkins-integration-sample.jar
-ENTRYPOINT ["java","-jar","/docker-jenkins-integration-sample.jar"]
+FROM tomcat:8.0.20-jre8
+# Dummy text to test 
+COPY target/spring-rest-hello-world-1.0.2*.jar /usr/local/tomcat/webapps/jspring-rest-hello-world-1.0.2
