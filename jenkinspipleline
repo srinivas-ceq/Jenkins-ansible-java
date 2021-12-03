@@ -1,0 +1,32 @@
+node{
+    
+   def buildNumber = BUILD_NUMBER
+   
+    stage("Git CheckOut"){
+        git url: 'https://github.com/srinivas-ceq/Jenkins-ansible-java.git',branch: 'master'
+    }
+    
+    stage(" Maven Clean Package"){
+      def mavenHome =  tool name: "Maven", type: "maven"
+      def mavenCMD = "${mavenHome}/bin/mvn"
+      sh "${mavenCMD} clean package"
+    } 
+    
+    stage("Build Dokcer Image") {
+         sh "docker build -t msr8989/jspring-rest-hello-world:${buildNumber} ."
+    }
+    stage("Docker Login and Push"){
+        
+       withCredentials([string(credentialsId: 'Docker_pwd', variable: 'Docker_pwd')]) {
+          sh "docker login -u msr8989 -p ${Docker_pwd}"   
+       }   
+       
+        sh "docker push msr8989/jspring-rest-hello-world:${buildNumber}"
+    }
+    
+    stage("Docker Application as Docker Container in Docker Deployment"){
+        sshagent(['docker_ssh']) {
+        sh "ssh -o StrictHostKeyChecking=no ubuntu@3.133.87.148 docker rm -f javaapp"
+        }
+    }
+}
